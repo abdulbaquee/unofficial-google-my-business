@@ -1,0 +1,8 @@
+/.htaccess
+/nbproject
+/vendor
+composer.lock
+composer.phar
+config.php
+test.php
+.bak
