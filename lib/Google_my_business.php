@@ -36,72 +36,274 @@ class Google_my_business
     private $client_id;
     private $client_secret;
     private $redirect_uri;
-    private $version;
-    private $root_uri;
-    private $token_uri;
-    private $oauth2_uri;
-    private $scopes = array();
+    private $root_uri = 'https://mybusiness.googleapis.com/v4/';
+    private $token_uri = 'https://www.googleapis.com/oauth2/v4/token?';
+    private $oauth2_uri = "https://accounts.google.com/o/oauth2/v2/auth?";
+    private $scopes;
+    private $state = "Gmb";
+    private $limit = 20;
 
-    function __construct($client_id, $client_secret, $redirect_uri)
+    public function __construct($client_id, $client_secret, $redirect_uri, $scope)
     {
         if (empty($client_id))
         {
             $this->_show_error("Client ID is missing");
         }
+
         if (empty($client_secret))
         {
             $this->_show_error("Client secret is missing");
         }
+
         if (empty($redirect_uri))
         {
             $this->_show_error("Redirect URI is missing");
         }
 
-        $this->oauth2_uri = "https://accounts.google.com/o/oauth2/v2/auth";
-
-        $this->root_uri = 'https://mybusiness.googleapis.com/';
-
-        $this->token_uri = 'https://www.googleapis.com/';
-
-        $this->version = 'v4';
+        if (empty($scope))
+        {
+            $this->_show_error("Google my business scope is missing");
+        }
 
         $this->client_id = $client_id;
+
         $this->client_secret = $client_secret;
+
         $this->redirect_uri = $redirect_uri;
+
+        $this->scopes = $scope;
     }
 
-    public function gmb_login($scopes = array())
+    public function gmb_login()
     {
         $params = array(
             'client_id' => $this->client_id,
             'redirect_uri' => $this->redirect_uri,
             'prompt' => 'consent',
-            'scope' => $scopes
+            'response_type' => 'code',
+            'access_type' => 'offline',
+            'state' => $this->state,
+            'scope' => implode(",", $this->scopes)
         );
 
-        //$OAuth_request = "https://accounts.google.com/o/oauth2/v2/auth?client_id=" . client_id . "&redirect_uri=" . redirect_uri . "&scope=https://www.googleapis.com/auth/plus.business.manage%20https://www.googleapis.com/auth/userinfo.email&response_type=code&access_type=offline&state=$get_data&prompt=consent";
-        //redirect($OAuth_request);
+
+        $http_query = http_build_query($params);
+
+        return $this->oauth2_uri . $http_query;
     }
 
-    function get_setting()
+    public function get_access_token($code)
     {
-        $data = array(
-            'client_id' => $this->client_id,
-            'token_uri' => $this->token_uri,
-        );
-        return $data;
-    }
-
-    private function redirect($uri, $permanent = false)
-    {
-        if ($permanent)
+        if (empty($code))
         {
-            header('HTTP/1.1 301 Moved Permanently');
+            $this->_show_error("Code is missing");
+        }
+
+        $params = array(
+            'code' => $code,
+            'client_id' => $this->client_id,
+            'client_secret' => $this->client_secret,
+            'redirect_uri' => $this->redirect_uri,
+            'grant_type' => 'authorization_code'
+        );
+
+        $json_data = json_encode($params);
+
+        return $this->_apiCall($this->token_uri, 'POST', $json_data);
+    }
+
+    public function get_exchange_token($refresh_token)
+    {
+        if (empty($refresh_token))
+        {
+            $this->_show_error("Refresh token is missing");
+        }
+
+        $params = array(
+            'client_id' => $this->client_id,
+            'client_secret' => $this->client_secret,
+            'refresh_token' => $refresh_token,
+            'grant_type' => 'refresh_token'
+        );
+
+        $json_data = json_encode($params);
+
+        return $this->_apiCall($this->token_uri, 'POST', $json_data);
+    }
+    
+    /*
+     * Account related functions
+     */
+    public function get_accounts($access_token)
+    {
+        if (empty($access_token))
+        {
+            $this->_show_error("Access token is missing");
+        }
+
+        $params = array(
+            'pageSize' => $this->limit,
+            'access_token' => $access_token
+        );
+
+        $build_query = http_build_query($params);
+
+        return $this->_apiCall($this->root_uri . "accounts?" . $build_query);
+    }
+
+    public function get_account_details($account_name, $access_token)
+    {
+        
+        if (empty($account_name))
+        {
+            $this->_show_error("Account name is missing");
+        }
+
+        if (empty($access_token))
+        {
+            $this->_show_error("Access token is missing");
+        }
+
+        $params = array(
+            'name' => $account_name,
+            'access_token' => $access_token
+        );
+
+        $build_query = http_build_query($params);
+
+        return $this->_apiCall($this->root_uri . "accounts?" . $build_query);
+    }
+    
+    public function generate_account_number($account_name, $access_token)
+    {
+        if (empty($account_name))
+        {
+            $this->_show_error("Account name is missing");
+        }
+
+        if (empty($access_token))
+        {
+            $this->_show_error("Access token is missing");
+        }
+
+        $params = array('name' => $account_name);
+        
+        $json_data = json_encode($params);
+        
+        return $this->_apiCall($this->root_uri . $account_name . ":generateAccountNumber?access_token=" . $access_token, 'POST', $json_data);
+    }
+    
+    public function get_notifications($account_name, $access_token)
+    {
+        if (empty($account_name))
+        {
+            $this->_show_error("Account name is missing");
+        }
+
+        if (empty($access_token))
+        {
+            $this->_show_error("Access token is missing");
         }
         
-        header('Location: ' . $uri);
+        $params = array('name' => $account_name, 'access_token' => $access_token);
         
-        exit();
+        $build_query = http_build_query($params);
+        
+        return $this->_apiCall($this->root_uri . $account_name . "/notifications?" . $build_query);
+    }
+
+
+    /*
+     * Location related functions
+     */
+    public function get_locations($account_name, $access_token)
+    {
+        if (empty($account_name))
+        {
+            $this->_show_error("Account name is missing");
+        }
+
+        if (empty($access_token))
+        {
+            $this->_show_error("Access token is missing");
+        }
+
+        $params = array(
+            'parent' => $account_name,
+            'access_token' => $access_token,
+            'pageSize' => 1
+        );
+
+        $build_query = http_build_query($params);
+
+        return $this->_apiCall($this->root_uri . $account_name . "/locations?" . $build_query);
+    }
+    
+    /*
+     * Common functions
+     */
+    public function _pre($data = array())
+    {
+        echo "<pre>";
+        print_r($data);
+        echo "</pre>";
+    }
+    
+    function redirect($uri)
+    {
+        header('Location: ' . $uri);
+    }
+
+    private function _apiCall($uri, $req_method = 'GET', $params = array())
+    {
+        $curinit = curl_init($uri);
+        curl_setopt($curinit, CURLOPT_SSL_VERIFYPEER, false);
+        $method = strtoupper($req_method);
+
+        if ($method == 'POST')
+        {
+            curl_setopt($curinit, CURLOPT_POST, true);
+            curl_setopt($curinit, CURLOPT_POSTFIELDS, $params);
+            curl_setopt($curinit, CURLOPT_HTTPHEADER, array(
+                'Content-Type: application/json',
+                'Content-Length: ' . strlen($params)
+                )
+            );
+            curl_setopt($curinit, CURLOPT_CUSTOMREQUEST, $method);
+        } elseif ($method === 'PUT')
+        {
+            curl_setopt($curinit, CURLOPT_POST, true);
+            curl_setopt($curinit, CURLOPT_CUSTOMREQUEST, 'PUT');
+            curl_setopt($curinit, CURLOPT_POSTFIELDS, $params);
+            curl_setopt($curinit, CURLOPT_HTTPHEADER, array(
+                'Content-Type: application/json',
+                'Content-Length: ' . strlen(http_build_query($params))
+                )
+            );
+        } elseif ($method == 'DELETE')
+        {
+            curl_setopt($curinit, CURLOPT_CUSTOMREQUEST, $method);
+        } elseif ($method == 'PATCH')
+        {
+            curl_setopt($curinit, CURLOPT_POST, true);
+            curl_setopt($curinit, CURLOPT_POSTFIELDS, $params);
+            curl_setopt($curinit, CURLOPT_HTTPHEADER, array(
+                'Content-Type: application/json',
+                'Content-Length: ' . strlen(http_build_query($params))
+                )
+            );
+            curl_setopt($curinit, CURLOPT_CUSTOMREQUEST, $method);
+        }
+
+        curl_setopt($curinit, CURLOPT_RETURNTRANSFER, true);
+
+        $json = curl_exec($curinit);
+
+        curl_close($curinit);
+
+        $phpObj = json_decode($json, true);
+
+        return $phpObj;
     }
 
     private function _show_error($data)
