@@ -1,8 +1,6 @@
 <?php
 
 session_start();
-error_reporting('-1');
-ini_set('display_errors', 1);
 
 require 'vendor/autoload.php';
 require './config.php';
@@ -29,7 +27,7 @@ if(isset($access_token['error']))
 {
     echo "<p style='color: red; font-weight: bold;'> Errors: " . $access_token['error'] . " => " . $access_token['error_description'] . "</p>";
     
-    echo "<p><a href='http://localhost/Unofficial-Google-My-Business/login.php'>Back to Login page</a></p>";
+    echo "<p><a href='login.php'>Back to Login page</a></p>";
 }
 
 $_SESSION['refresh_token'] = $access_token['refresh_token'];
