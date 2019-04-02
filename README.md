@@ -22,8 +22,6 @@ define('GMB_CLIENT_SECRET', '');
 define('GMB_REDIRECT_URI', '');
 $scopes = array('https://www.googleapis.com/auth/plus.business.manage');
 define('SCOPE', $scopes);
-
-```
 ```
 
 ```
@@ -59,9 +57,9 @@ if(isset($access_token['error']))
 
 $_SESSION['refresh_token'] = $access_token['refresh_token'];
 $myBusiness->redirect('accounts.php');
-````
+```
 
-````
+```
 location.php
 session_start();
 
@@ -94,12 +92,11 @@ $locations = $myBusiness->get_locations($_SESSION['gmb_account_name'], $access_t
 echo "<pre>";
 
 print_r($locations);
-````
-
-````
-locations_details.php
+```
 
 ```
+locations_details.php
+
 session_start();
 
 require 'vendor/autoload.php';
@@ -131,7 +128,7 @@ $locations = $myBusiness->get_locations($_SESSION['gmb_account_name'], $access_t
 echo "<pre>";
 
 print_r($locations);
-````
+```
 
 Updates
 ===============
