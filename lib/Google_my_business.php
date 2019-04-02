@@ -451,6 +451,46 @@ class Google_my_business
         return $this->_apiCall($this->root_uri . $review_name . "?" . $build_query, 'PUT', $json_econde);
     }
 
+    public function qa_reply($question_name, $access_token, $post_body)
+    {
+        if (empty($question_name))
+        {
+            $this->_show_error("Question name is missing");
+        }
+
+        if (empty($access_token))
+        {
+            $this->_show_error("Access token is missing");
+        }
+
+        $params = array('access_token' => $access_token);
+
+        $build_query = http_build_query($params);
+
+        $json_econde = json_encode($post_body);
+
+        return $this->_apiCall($this->root_uri . $question_name . "/answers:upsert?" . $build_query, 'post', $json_econde);
+    }
+
+    public function delete_qa_reply($question_name, $access_token)
+    {
+        if (empty($question_name))
+        {
+            $this->_show_error("Account name is missing");
+        }
+
+        if (empty($access_token))
+        {
+            $this->_show_error("Access token is missing");
+        }
+
+        $params = array('access_token' => $access_token);
+
+        $build_query = http_build_query($params);
+
+        return $this->_apiCall($this->root_uri . $question_name . "/answers:delete?" . $build_query, 'DELETE');
+    }
+
     public function delete_review_reply($review_name, $access_token)
     {
         if (empty($review_name))
@@ -473,6 +513,7 @@ class Google_my_business
     /*
      * Local post functions
      */
+
     public function get_local_post($post_name, $access_token)
     {
         if (empty($post_name))
@@ -537,10 +578,11 @@ class Google_my_business
 
         return $this->_apiCall($this->root_uri . $post_name . "?" . $build_query, 'delete');
     }
-    
+
     /*
      * GMB Question & Answers functions
      */
+
     public function get_questions($location_name, $access_token)
     {
         if (empty($location_name))
@@ -556,10 +598,10 @@ class Google_my_business
         $params = array('access_token' => $access_token);
 
         $build_query = http_build_query($params);
-        
+
         return $this->_apiCall($this->root_uri . $location_name . "?" . $build_query);
     }
-    
+
     public function get_answers($location_name, $access_token)
     {
         if (empty($location_name))
@@ -575,10 +617,10 @@ class Google_my_business
         $params = array('access_token' => $access_token);
 
         $build_query = http_build_query($params);
-        
+
         return $this->_apiCall($this->root_uri . $location_name . "?" . $build_query);
     }
-    
+
     /*
      * Common functions
      */
