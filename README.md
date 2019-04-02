@@ -5,10 +5,10 @@ PHP library for Unofficial Google My Business API v4
 Simplified version of Google My Business API V4
 
 Google My Business
-Version: 4.0
-Author: [Website](http://www.webgrapple.com/)
 
-Twitter: [@abdulbaquee85](http://www.twitter.com/abdulbaquee85)
+Version: 4.0
+Website: [webgrapple.com](http://www.webgrapple.com/)
+Author: [abdulbaquee](http://www.twitter.com/abdulbaquee85)
 
 Usage
 ===============
