@@ -20,7 +20,7 @@
  * Service definition for MyBusiness (v4).
  *
  * <p>
- * Unofficial  Google My Business API provides an interface for managing business
+ * Unofficial Google My Business API provides an interface for managing business
  * location information on Google.</p>
  *
  * <p>
