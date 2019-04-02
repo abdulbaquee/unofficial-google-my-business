@@ -6,7 +6,8 @@ Simplified version of Google My Business API V4
 
 Google My Business
 Version: 4.0
-Author: [Abdul Baquee](http://www.webgrapple.com/)  
+Author: [Website](http://www.webgrapple.com/)
+
 Twitter: [@abdulbaquee85](http://www.twitter.com/abdulbaquee85)
 
 Usage
