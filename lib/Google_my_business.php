@@ -300,6 +300,101 @@ class Google_my_business
 
         return $this->_apiCall($this->root_uri . $location_name . "?" . $build_query, 'patch', $json_econde);
     }
+    
+    /*
+     * Create location functions
+     */
+
+    public function create_location($name, $access_token, $post_body, $request_id, $validateOnly = NULL)
+    {
+        if (empty($name))
+        {
+            $this->_show_error("Account name is missing");
+        }
+
+        if (empty($access_token))
+        {
+            $this->_show_error("Access token is missing");
+        }
+
+        if (empty($post_body) || !is_array($post_body))
+        {
+            $this->_show_error("Post body must be an array");
+        }
+
+        if (empty($request_id))
+        {
+            $this->_show_error("request_id is required");
+        }
+
+        $params = array('access_token' => $access_token, 'requestId' => $request_id);
+
+        if (!empty($validateOnly))
+        {
+            $params['validateOnly'] = TRUE;
+        }
+
+        $build_query = http_build_query($params);
+
+        $json_econde = json_encode($post_body);
+        return $this->_apiCall($this->root_uri . $name . "/locations?" . $build_query, 'post', $json_econde);
+    }
+    
+    /*
+     * Location verify functions
+     */
+
+    public function location_verify($name, $access_token, $post_body)
+    {
+        if (empty($name))
+        {
+            $this->_show_error("Location name is missing");
+        }
+
+        if (empty($access_token))
+        {
+            $this->_show_error("Access token is missing");
+        }
+
+        if (empty($post_body) || !is_array($post_body))
+        {
+            $this->_show_error("Post body must be an array");
+        }
+
+        $params = array('access_token' => $access_token);
+
+        $build_query = http_build_query($params);
+        $json_econde = json_encode($post_body);
+        return $this->_apiCall($this->root_uri . $name . ":verify?" . $build_query, 'post', $json_econde);
+    }
+
+    /*
+     * Location verification options functions
+     */
+
+    public function location_verification_options($name, $access_token, $post_body)
+    {
+        if (empty($name))
+        {
+            $this->_show_error("Location name is missing");
+        }
+
+        if (empty($access_token))
+        {
+            $this->_show_error("Access token is missing");
+        }
+
+        if (empty($post_body) || !is_array($post_body))
+        {
+            $this->_show_error("Post body must be an array");
+        }
+
+        $params = array('access_token' => $access_token);
+
+        $build_query = http_build_query($params);
+        $json_econde = json_encode($post_body);
+        return $this->_apiCall($this->root_uri . $name . ":fetchVerificationOptions?" . $build_query, 'post', $json_econde);
+    }
 
     /*
      * Location media functions
@@ -619,17 +714,6 @@ class Google_my_business
         $build_query = http_build_query($params);
 
         return $this->_apiCall($this->root_uri . $location_name . "?" . $build_query);
-    }
-
-    /*
-     * Common functions
-     */
-
-    public function _pre($data = array())
-    {
-        echo "<pre>";
-        print_r($data);
-        echo "</pre>";
     }
 
     function redirect($uri)
