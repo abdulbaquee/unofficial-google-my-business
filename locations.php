@@ -5,7 +5,13 @@ session_start();
 require 'vendor/autoload.php';
 require './config.php';
 
-$myBusiness = new Google_my_business(GMB_CLIENT_ID, GMB_CLIENT_SECRET, GMB_REDIRECT_URI, SCOPE);
+$param = array(
+    'client_id' => GMB_CLIENT_ID,
+    'client_secret' => GMB_CLIENT_SECRET,
+    'redirect_uri' => GMB_REDIRECT_URI,
+    'scope' => SCOPE
+);
+$myBusiness = new Google_my_business($param);
 
 $refresh_token = isset($_SESSION['refresh_token']) ? trim($_SESSION['refresh_token']): NULL;
 

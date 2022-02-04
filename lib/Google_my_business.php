@@ -715,6 +715,34 @@ class Google_my_business
 
         return $this->_apiCall($this->root_uri . $location_name . "?" . $build_query);
     }
+    
+    public function get_insights($route, $access_token, $post_body)
+    {
+
+        if (empty($route))
+        {
+            $this->_show_error("Account name is missing");
+        }
+
+        if (empty($access_token))
+        {
+            $this->_show_error("Access token is missing");
+        }
+
+        if (!is_array($post_body) && count($post_body) === 0)
+        {
+            $this->_show_error("Post body must be an array set");
+        }
+
+
+        $params = array('access_token' => $access_token);
+
+        $build_query = http_build_query($params);
+
+        $json_econde = json_encode($post_body);
+
+        return $this->_apiCall($this->root_uri . $route . "?" . $build_query, 'post', $json_econde);
+    }
 
     function redirect($uri)
     {
