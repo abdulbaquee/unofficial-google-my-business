@@ -14,7 +14,7 @@
         "business"
     ],
     "require": {
-        "abdulbaquee/unofficial-google-my-business": "2.0",
+        "abdulbaquee/unofficial-google-my-business": "7.2.1.0",
         "php": ">=5.4",
         "ext-curl": "*",
         "ext-json": "*",
