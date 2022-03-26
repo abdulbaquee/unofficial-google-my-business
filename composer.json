@@ -2,7 +2,7 @@
     "name": "abdulbaquee/unofficial-google-my-business",
     "description": "PHP library for Google My Business API v4",
     "type": "library",
-    "version": "7.2.1",
+    "version": "7.3",
     "homepage": "https://github.com/abdulbaquee/unofficial-google-my-business/",
     "license": "Apache-2.0",
     "keywords": [
@@ -14,7 +14,7 @@
         "business"
     ],
     "require": {
-        "abdulbaquee/unofficial-google-my-business": "7.2.1.0",
+        "abdulbaquee/unofficial-google-my-business": "7.3",
         "php": ">=5.4",
         "ext-curl": "*",
         "ext-json": "*",
