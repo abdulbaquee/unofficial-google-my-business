@@ -40,6 +40,7 @@ class Google_my_business
     private $token_uri = 'https://www.googleapis.com/oauth2/v4/token?';
     private $oauth2_uri = "https://accounts.google.com/o/oauth2/v2/auth?";
     private $scopes = array("https://www.googleapis.com/auth/plus.business.manage");
+    private $notification_api = "https://mybusinessnotifications.googleapis.com/v1/";
     private $state = "Gmb";
     private $limit = 20;
 
@@ -207,8 +208,50 @@ class Google_my_business
         $params = array('name' => $account_name, 'access_token' => $access_token);
 
         $build_query = http_build_query($params);
+        return $this->_apiCall($this->notification_api . $account_name . "/notifications?" . $build_query);
+    }
 
-        return $this->_apiCall($this->root_uri . $account_name . "/notifications?" . $build_query);
+    public function get_notification_settings($account_name, $access_token)
+    {
+        if (empty($account_name))
+        {
+            $this->_show_error("Account name is missing");
+        }
+
+        if (empty($access_token))
+        {
+            $this->_show_error("Access token is missing");
+        }
+
+        $params = array('access_token' => $access_token);
+
+        $build_query = http_build_query($params);
+        return $this->_apiCall($this->notification_api . $account_name . "/notificationSetting?" . $build_query);
+    }
+
+    public function update_notification_settings($account_name, $post_body, $access_token)
+    {
+        if (empty($account_name))
+        {
+            $this->_show_error("Account name is missing");
+        }
+
+        if (empty($access_token))
+        {
+            $this->_show_error("Access token is missing");
+        }
+
+        if(empty($post_body)) {
+            $this->_show_error("Params are missing");
+        }
+
+        $params = array('access_token' => $access_token, 'update_mask' => 'notificationTypes,pubsubTopic');
+
+        $build_query = http_build_query($params);
+
+        $json_econde = json_encode($post_body);
+
+        return $this->_apiCall($this->notification_api . $account_name . "/notificationSetting?" . $build_query, 'PATCH', $json_econde);
     }
 
     /*
@@ -804,6 +847,13 @@ class Google_my_business
     private function _show_error($data)
     {
         throw new Exception($data, 500);
+    }
+    
+    public function _pre($data = array()) {
+        echo "<pre>";
+        print_r($data);
+        echo "</pre>";
+        exit;
     }
 
 }
