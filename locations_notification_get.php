@@ -35,7 +35,7 @@ if (!isset($_SESSION['gmb_account_name']))
     $myBusiness->redirect('login.php');
 }
 
-$account_name = "accounts/116645947366172015267"; // accounts/116645947366172015267
+$account_name = "<Your account name>"; // accounts/116645947366172015267
 
 $notifications = $myBusiness->get_notification_settings($account_name, $access_token['access_token']);
 
