@@ -36,9 +36,16 @@ class Google_my_business
     private $client_id;
     private $client_secret;
     private $redirect_uri;
+    
+    /**
+     * TODO:
+     * Create a function for navigate between APIs
+     */
+    private $root_api = 'https://mybusinessaccountmanagement.googleapis.com/v1/';
     private $root_uri = 'https://mybusiness.googleapis.com/v4/';
     private $token_uri = 'https://www.googleapis.com/oauth2/v4/token?';
     private $oauth2_uri = "https://accounts.google.com/o/oauth2/v2/auth?";
+
     private $scopes = array("https://www.googleapis.com/auth/plus.business.manage");
     private $notification_api = "https://mybusinessnotifications.googleapis.com/v1/";
     private $state = "Gmb";
@@ -148,7 +155,7 @@ class Google_my_business
 
         $build_query = http_build_query($params);
 
-        return $this->_apiCall($this->root_uri . "accounts?" . $build_query);
+        return $this->_apiCall($this->root_api . "accounts?" . $build_query);
     }
 
     public function get_account_details($account_name, $access_token)
@@ -171,7 +178,7 @@ class Google_my_business
 
         $build_query = http_build_query($params);
 
-        return $this->_apiCall($this->root_uri . "accounts?" . $build_query);
+        return $this->_apiCall($this->root_api . "accounts?" . $build_query);
     }
 
     public function generate_account_number($account_name, $access_token)
@@ -190,7 +197,7 @@ class Google_my_business
 
         $json_data = json_encode($params);
 
-        return $this->_apiCall($this->root_uri . $account_name . ":generateAccountNumber?access_token=" . $access_token, 'POST', $json_data);
+        return $this->_apiCall($this->root_api . $account_name . ":generateAccountNumber?access_token=" . $access_token, 'POST', $json_data);
     }
 
     public function get_notifications($account_name, $access_token)
@@ -283,7 +290,7 @@ class Google_my_business
 
         $build_query = http_build_query($params);
 
-        return $this->_apiCall($this->root_uri . $account_name . "/locations?" . $build_query);
+        return $this->_apiCall($this->root_api . $account_name . "/locations?" . $build_query);
     }
 
     /*
@@ -306,7 +313,7 @@ class Google_my_business
 
         $build_query = http_build_query($params);
 
-        return $this->_apiCall($this->root_uri . $location_name . "?" . $build_query);
+        return $this->_apiCall($this->root_api . $location_name . "?" . $build_query);
     }
 
     /*
@@ -341,7 +348,7 @@ class Google_my_business
 
         $json_econde = json_encode($post_body);
 
-        return $this->_apiCall($this->root_uri . $location_name . "?" . $build_query, 'patch', $json_econde);
+        return $this->_apiCall($this->root_api . $location_name . "?" . $build_query, 'patch', $json_econde);
     }
     
     /*
@@ -380,7 +387,7 @@ class Google_my_business
         $build_query = http_build_query($params);
 
         $json_econde = json_encode($post_body);
-        return $this->_apiCall($this->root_uri . $name . "/locations?" . $build_query, 'post', $json_econde);
+        return $this->_apiCall($this->root_api . $name . "/locations?" . $build_query, 'post', $json_econde);
     }
     
     /*
@@ -408,7 +415,7 @@ class Google_my_business
 
         $build_query = http_build_query($params);
         $json_econde = json_encode($post_body);
-        return $this->_apiCall($this->root_uri . $name . ":verify?" . $build_query, 'post', $json_econde);
+        return $this->_apiCall($this->root_api . $name . ":verify?" . $build_query, 'post', $json_econde);
     }
 
     /*
@@ -436,7 +443,7 @@ class Google_my_business
 
         $build_query = http_build_query($params);
         $json_econde = json_encode($post_body);
-        return $this->_apiCall($this->root_uri . $name . ":fetchVerificationOptions?" . $build_query, 'post', $json_econde);
+        return $this->_apiCall($this->root_api . $name . ":fetchVerificationOptions?" . $build_query, 'post', $json_econde);
     }
 
     /*
@@ -459,7 +466,7 @@ class Google_my_business
 
         $build_query = http_build_query($params);
 
-        return $this->_apiCall($this->root_uri . $location_name . "?" . $build_query);
+        return $this->_apiCall($this->root_api . $location_name . "?" . $build_query);
     }
 
     /*
@@ -484,7 +491,7 @@ class Google_my_business
 
         $json_econde = json_encode($post_body);
 
-        return $this->_apiCall($this->root_uri . $name . "?" . $build_query, 'post', $json_econde);
+        return $this->_apiCall($this->root_api . $name . "?" . $build_query, 'post', $json_econde);
     }
 
     /*
@@ -519,7 +526,7 @@ class Google_my_business
 
         $json_econde = json_encode($post_body);
 
-        return $this->_apiCall($this->root_uri . $location_name . "?" . $build_query, 'patch', $json_econde);
+        return $this->_apiCall($this->root_api . $location_name . "?" . $build_query, 'patch', $json_econde);
     }
 
     /*
@@ -542,7 +549,7 @@ class Google_my_business
 
         $build_query = http_build_query($params);
 
-        return $this->_apiCall($this->root_uri . $name . "?" . $build_query, 'delete');
+        return $this->_apiCall($this->root_api . $name . "?" . $build_query, 'delete');
     }
 
     /*
@@ -565,7 +572,7 @@ class Google_my_business
 
         $build_query = http_build_query($params);
 
-        return $this->_apiCall($this->root_uri . $review_name . "?" . $build_query);
+        return $this->_apiCall($this->root_api . $review_name . "?" . $build_query);
     }
 
     public function reply_review($review_name, $access_token, $post_body)
@@ -586,7 +593,7 @@ class Google_my_business
 
         $json_econde = json_encode($post_body);
 
-        return $this->_apiCall($this->root_uri . $review_name . "?" . $build_query, 'PUT', $json_econde);
+        return $this->_apiCall($this->root_api . $review_name . "?" . $build_query, 'PUT', $json_econde);
     }
 
     public function qa_reply($question_name, $access_token, $post_body)
@@ -607,7 +614,7 @@ class Google_my_business
 
         $json_econde = json_encode($post_body);
 
-        return $this->_apiCall($this->root_uri . $question_name . "/answers:upsert?" . $build_query, 'post', $json_econde);
+        return $this->_apiCall($this->root_api . $question_name . "/answers:upsert?" . $build_query, 'post', $json_econde);
     }
 
     public function delete_qa_reply($question_name, $access_token)
@@ -626,7 +633,7 @@ class Google_my_business
 
         $build_query = http_build_query($params);
 
-        return $this->_apiCall($this->root_uri . $question_name . "/answers:delete?" . $build_query, 'DELETE');
+        return $this->_apiCall($this->root_api . $question_name . "/answers:delete?" . $build_query, 'DELETE');
     }
 
     public function delete_review_reply($review_name, $access_token)
@@ -645,7 +652,7 @@ class Google_my_business
 
         $build_query = http_build_query($params);
 
-        return $this->_apiCall($this->root_uri . $review_name . "?" . $build_query, 'delete');
+        return $this->_apiCall($this->root_api . $review_name . "?" . $build_query, 'delete');
     }
 
     /*
@@ -668,7 +675,7 @@ class Google_my_business
 
         $build_query = http_build_query($params);
 
-        return $this->_apiCall($this->root_uri . $post_name . "?" . $build_query);
+        return $this->_apiCall($this->root_api . $post_name . "?" . $build_query);
     }
 
     public function post_local_post($location_name, $access_token, $post_body = array())
@@ -695,7 +702,7 @@ class Google_my_business
 
         $json_econde = json_encode($post_body);
 
-        return $this->_apiCall($this->root_uri . $location_name . "?" . $build_query, 'post', $json_econde);
+        return $this->_apiCall($this->root_api . $location_name . "?" . $build_query, 'post', $json_econde);
     }
 
     public function delete_localpost($post_name, $access_token)
@@ -714,7 +721,7 @@ class Google_my_business
 
         $build_query = http_build_query($params);
 
-        return $this->_apiCall($this->root_uri . $post_name . "?" . $build_query, 'delete');
+        return $this->_apiCall($this->root_api . $post_name . "?" . $build_query, 'delete');
     }
 
     /*
@@ -737,7 +744,7 @@ class Google_my_business
 
         $build_query = http_build_query($params);
 
-        return $this->_apiCall($this->root_uri . $location_name . "?" . $build_query);
+        return $this->_apiCall($this->root_api . $location_name . "?" . $build_query);
     }
 
     public function get_answers($location_name, $access_token)
@@ -756,7 +763,7 @@ class Google_my_business
 
         $build_query = http_build_query($params);
 
-        return $this->_apiCall($this->root_uri . $location_name . "?" . $build_query);
+        return $this->_apiCall($this->root_api . $location_name . "?" . $build_query);
     }
     
     public function get_insights($route, $access_token, $post_body)
@@ -784,7 +791,7 @@ class Google_my_business
 
         $json_econde = json_encode($post_body);
 
-        return $this->_apiCall($this->root_uri . $route . "?" . $build_query, 'post', $json_econde);
+        return $this->_apiCall($this->root_api . $route . "?" . $build_query, 'post', $json_econde);
     }
 
     function redirect($uri)
