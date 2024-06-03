@@ -16,22 +16,18 @@ $myBusiness = new Google_my_business($param);
 
 $code = filter_input(INPUT_GET, 'code');
 
-if (!isset($code) || empty($code))
-{
+if (!isset($code) || empty($code)) {
     $myBusiness->redirect('login.php');
 }
 
 $access_token = $myBusiness->get_access_token($code);
 
-if(isset($access_token['error']))
-{
+if (isset($access_token['error'])) {
     echo "<p style='color: red; font-weight: bold;'> Errors: " . $access_token['error'] . " => " . $access_token['error_description'] . "</p>";
-    
+
     echo "<p><a href='login.php'>Back to Login page</a></p>";
 }
 
 $_SESSION['refresh_token'] = $access_token['refresh_token'];
+
 $myBusiness->redirect('accounts.php');
-
-
-

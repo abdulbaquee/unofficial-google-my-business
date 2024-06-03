@@ -13,26 +13,27 @@ $param = array(
 );
 $myBusiness = new Google_my_business($param);
 
-$refresh_token = isset($_SESSION['refresh_token']) ? trim($_SESSION['refresh_token']): NULL;
+$refresh_token = isset($_SESSION['refresh_token']) ? trim($_SESSION['refresh_token']) : NULL;
 
-if (!isset($refresh_token) || empty($refresh_token))
-{
+if (!isset($refresh_token) || empty($refresh_token)) {
     $myBusiness->redirect('login.php');
 }
 
 $access_token = $myBusiness->get_exchange_token($refresh_token);
 
-if(!isset($access_token['access_token']))
-{
+if (!isset($access_token['access_token'])) {
     $myBusiness->redirect('login.php');
 }
 
-if(!isset($_SESSION['gmb_account_name']))
-{
+if (!isset($_SESSION['gmb_account_name'])) {
     $myBusiness->redirect('login.php');
 }
 
-$locations = $myBusiness->get_locations($_SESSION['gmb_account_name'], $access_token['access_token']);
+$mask = array('title', 'name', 'phoneNumbers', 'storefrontAddress', 'websiteUri', 'metadata');
+
+$readMask['readMask'] = implode(',', $mask);
+
+$locations = $myBusiness->get_locations($_SESSION['gmb_account_name'], $access_token['access_token'], $readMask);
 
 echo "<pre>";
 

@@ -12,6 +12,8 @@ $param = array(
     'scope' => SCOPE
 );
 
+define('LOCATION_NAME', 'locations/12301955069276590370');
+
 $myBusiness = new Google_my_business($param);
 
 $refresh_token = isset($_SESSION['refresh_token']) ? trim($_SESSION['refresh_token']) : NULL;
@@ -34,10 +36,12 @@ if (!isset($_SESSION['gmb_account_name']))
 }
 
 /*
- * Example: accounts/116645947366122015200/locations/11837266613486165090/media
+ * Example: locations/12301955069276590370
  */
-$location_details = $myBusiness->get_locations_details("your_location_id", $access_token['access_token']);
+$mask = array('title', 'name', 'phoneNumbers', 'storefrontAddress', 'websiteUri', 'metadata');
 
-echo "<pre>";
+$readMask['readMask'] = implode(',', $mask);
 
-print_r($location_details);
+$location_details = $myBusiness->get_locations_details(LOCATION_NAME, $access_token['access_token'], $readMask);
+
+$myBusiness->_pre($location_details);

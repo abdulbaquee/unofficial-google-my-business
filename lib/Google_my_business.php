@@ -36,42 +36,44 @@ class Google_my_business
     private $client_id;
     private $client_secret;
     private $redirect_uri;
-    
+
     /**
      * TODO:
      * Create a function for navigate between APIs
      */
-    private $root_api = 'https://mybusinessaccountmanagement.googleapis.com/v1/';
+    private $account_api = 'https://mybusinessaccountmanagement.googleapis.com/v1/';
+    private $location_uri = 'https://mybusinessbusinessinformation.googleapis.com/v1/';
     private $root_uri = 'https://mybusiness.googleapis.com/v4/';
     private $token_uri = 'https://www.googleapis.com/oauth2/v4/token?';
     private $oauth2_uri = "https://accounts.google.com/o/oauth2/v2/auth?";
-
-    private $scopes = array("https://www.googleapis.com/auth/plus.business.manage");
+    private $performance_uri = "https://businessprofileperformance.googleapis.com/v1/";
+    private $verification_uri = " https://mybusinessverifications.googleapis.com/v1/";
+    private $qa_uri = 'https://mybusinessqanda.googleapis.com/v1/';
     private $notification_api = "https://mybusinessnotifications.googleapis.com/v1/";
+
+    private $scopes = array(
+        'https://www.googleapis.com/auth/userinfo.email',
+        'https://www.googleapis.com/auth/userinfo.profile',
+        'https://www.googleapis.com/auth/business.manage'
+    );
     private $state = "Gmb";
     private $limit = 20;
 
     public function __construct($params)
     {
-        if (empty($params['client_id']))
-        {
+        if (empty($params['client_id'])) {
             $this->_show_error("Client ID is missing");
         }
 
-        if (empty($params['client_secret']))
-        {
+        if (empty($params['client_secret'])) {
             $this->_show_error("Client secret is missing");
         }
 
-        if (empty($params['redirect_uri']))
-        {
+        if (empty($params['redirect_uri'])) {
             $this->_show_error("Redirect URI is missing");
         }
 
-        if (empty($params['scope']))
-        {
-            $this->scopes = $this->scopes;
-        }
+        $this->scopes = isset($params['scope']) && !empty($params['scope']) ? $params['scope'] : $this->scopes;
 
         $this->client_id = $params['client_id'];
 
@@ -89,9 +91,10 @@ class Google_my_business
             'response_type' => 'code',
             'access_type' => 'offline',
             'state' => $this->state,
-            'scope' => implode(",", $this->scopes)
+            'scope' => implode(" ", $this->scopes),
+            'include_granted_scopes' => 'true',
+            'enable_granular_consent' => 'true'
         );
-
 
         $http_query = http_build_query($params);
 
@@ -100,8 +103,7 @@ class Google_my_business
 
     public function get_access_token($code)
     {
-        if (empty($code))
-        {
+        if (empty($code)) {
             $this->_show_error("Code is missing");
         }
 
@@ -120,8 +122,7 @@ class Google_my_business
 
     public function get_exchange_token($refresh_token)
     {
-        if (empty($refresh_token))
-        {
+        if (empty($refresh_token)) {
             $this->_show_error("Refresh token is missing");
         }
 
@@ -143,8 +144,7 @@ class Google_my_business
 
     public function get_accounts($access_token)
     {
-        if (empty($access_token))
-        {
+        if (empty($access_token)) {
             $this->_show_error("Access token is missing");
         }
 
@@ -155,60 +155,34 @@ class Google_my_business
 
         $build_query = http_build_query($params);
 
-        return $this->_apiCall($this->root_api . "accounts?" . $build_query);
+        return $this->_apiCall($this->account_api . "accounts?" . $build_query);
     }
 
     public function get_account_details($account_name, $access_token)
     {
 
-        if (empty($account_name))
-        {
+        if (empty($account_name)) {
             $this->_show_error("Account name is missing");
         }
 
-        if (empty($access_token))
-        {
+        if (empty($access_token)) {
             $this->_show_error("Access token is missing");
         }
 
-        $params = array(
-            'name' => $account_name,
-            'access_token' => $access_token
-        );
+        $params = array('access_token' => $access_token);
 
         $build_query = http_build_query($params);
 
-        return $this->_apiCall($this->root_api . "accounts?" . $build_query);
-    }
-
-    public function generate_account_number($account_name, $access_token)
-    {
-        if (empty($account_name))
-        {
-            $this->_show_error("Account name is missing");
-        }
-
-        if (empty($access_token))
-        {
-            $this->_show_error("Access token is missing");
-        }
-
-        $params = array('name' => $account_name);
-
-        $json_data = json_encode($params);
-
-        return $this->_apiCall($this->root_api . $account_name . ":generateAccountNumber?access_token=" . $access_token, 'POST', $json_data);
+        return $this->_apiCall($this->account_api . $account_name . "?" . $build_query);
     }
 
     public function get_notifications($account_name, $access_token)
     {
-        if (empty($account_name))
-        {
+        if (empty($account_name)) {
             $this->_show_error("Account name is missing");
         }
 
-        if (empty($access_token))
-        {
+        if (empty($access_token)) {
             $this->_show_error("Access token is missing");
         }
 
@@ -220,13 +194,11 @@ class Google_my_business
 
     public function get_notification_settings($account_name, $access_token)
     {
-        if (empty($account_name))
-        {
+        if (empty($account_name)) {
             $this->_show_error("Account name is missing");
         }
 
-        if (empty($access_token))
-        {
+        if (empty($access_token)) {
             $this->_show_error("Access token is missing");
         }
 
@@ -238,17 +210,15 @@ class Google_my_business
 
     public function update_notification_settings($account_name, $post_body, $access_token)
     {
-        if (empty($account_name))
-        {
+        if (empty($account_name)) {
             $this->_show_error("Account name is missing");
         }
 
-        if (empty($access_token))
-        {
+        if (empty($access_token)) {
             $this->_show_error("Access token is missing");
         }
 
-        if(empty($post_body)) {
+        if (empty($post_body)) {
             $this->_show_error("Params are missing");
         }
 
@@ -267,13 +237,11 @@ class Google_my_business
 
     public function get_locations($account_name, $access_token, $optional = array())
     {
-        if (empty($account_name))
-        {
+        if (empty($account_name)) {
             $this->_show_error("Account name is missing");
         }
 
-        if (empty($access_token))
-        {
+        if (empty($access_token)) {
             $this->_show_error("Access token is missing");
         }
 
@@ -283,37 +251,38 @@ class Google_my_business
             'pageSize' => $this->limit
         );
 
-        if (is_array($optional) && count($optional) > 0)
-        {
+        if (is_array($optional) && count($optional) > 0) {
             $params = array_merge($params, $optional);
         }
 
         $build_query = http_build_query($params);
 
-        return $this->_apiCall($this->root_api . $account_name . "/locations?" . $build_query);
+        return $this->_apiCall($this->account_api . $account_name . "/locations?" . $build_query);
     }
 
     /*
      * Location details functions
      */
 
-    public function get_locations_details($location_name, $access_token)
+    public function get_locations_details($location_name, $access_token, $optional = array())
     {
-        if (empty($location_name))
-        {
+        if (empty($location_name)) {
             $this->_show_error("Account name is missing");
         }
 
-        if (empty($access_token))
-        {
+        if (empty($access_token)) {
             $this->_show_error("Access token is missing");
         }
 
         $params = array('access_token' => $access_token);
 
+        if (is_array($optional) && count($optional) > 0) {
+            $params = array_merge($params, $optional);
+        }
+
         $build_query = http_build_query($params);
 
-        return $this->_apiCall($this->root_api . $location_name . "?" . $build_query);
+        return $this->_apiCall($this->location_uri . $location_name . "?" . $build_query);
     }
 
     /*
@@ -322,25 +291,21 @@ class Google_my_business
 
     public function update_locations_details($location_name, $access_token, $fieldMask, $post_body = array(), $validateOnly = NULL)
     {
-        if (empty($location_name))
-        {
+        if (empty($location_name)) {
             $this->_show_error("Account name is missing");
         }
 
-        if (empty($access_token))
-        {
+        if (empty($access_token)) {
             $this->_show_error("Access token is missing");
         }
 
-        if (!is_array($post_body) || count($post_body) === 0)
-        {
+        if (!is_array($post_body) || count($post_body) === 0) {
             $this->_show_error("Post body must be an array");
         }
 
         $params = array('access_token' => $access_token, 'update_mask' => $fieldMask);
 
-        if (!empty($validateOnly))
-        {
+        if (!empty($validateOnly)) {
             $params['validateOnly'] = TRUE;
         }
 
@@ -348,66 +313,58 @@ class Google_my_business
 
         $json_econde = json_encode($post_body);
 
-        return $this->_apiCall($this->root_api . $location_name . "?" . $build_query, 'patch', $json_econde);
+        return $this->_apiCall($this->location_uri . $location_name . "?" . $build_query, 'patch', $json_econde);
     }
-    
+
     /*
      * Create location functions
      */
 
     public function create_location($name, $access_token, $post_body, $request_id, $validateOnly = NULL)
     {
-        if (empty($name))
-        {
+        if (empty($name)) {
             $this->_show_error("Account name is missing");
         }
 
-        if (empty($access_token))
-        {
+        if (empty($access_token)) {
             $this->_show_error("Access token is missing");
         }
 
-        if (empty($post_body) || !is_array($post_body))
-        {
+        if (empty($post_body) || !is_array($post_body)) {
             $this->_show_error("Post body must be an array");
         }
 
-        if (empty($request_id))
-        {
+        if (empty($request_id)) {
             $this->_show_error("request_id is required");
         }
 
         $params = array('access_token' => $access_token, 'requestId' => $request_id);
 
-        if (!empty($validateOnly))
-        {
+        if (!empty($validateOnly)) {
             $params['validateOnly'] = TRUE;
         }
 
         $build_query = http_build_query($params);
 
         $json_econde = json_encode($post_body);
-        return $this->_apiCall($this->root_api . $name . "/locations?" . $build_query, 'post', $json_econde);
+        return $this->_apiCall($this->location_uri . $name . "/locations?" . $build_query, 'post', $json_econde);
     }
-    
+
     /*
      * Location verify functions
      */
 
     public function location_verify($name, $access_token, $post_body)
     {
-        if (empty($name))
-        {
+        if (empty($name)) {
             $this->_show_error("Location name is missing");
         }
 
-        if (empty($access_token))
-        {
+        if (empty($access_token)) {
             $this->_show_error("Access token is missing");
         }
 
-        if (empty($post_body) || !is_array($post_body))
-        {
+        if (empty($post_body) || !is_array($post_body)) {
             $this->_show_error("Post body must be an array");
         }
 
@@ -415,7 +372,7 @@ class Google_my_business
 
         $build_query = http_build_query($params);
         $json_econde = json_encode($post_body);
-        return $this->_apiCall($this->root_api . $name . ":verify?" . $build_query, 'post', $json_econde);
+        return $this->_apiCall($this->location_uri . $name . ":verify?" . $build_query, 'post', $json_econde);
     }
 
     /*
@@ -424,18 +381,15 @@ class Google_my_business
 
     public function location_verification_options($name, $access_token, $post_body)
     {
-        if (empty($name))
-        {
+        if (empty($name)) {
             $this->_show_error("Location name is missing");
         }
 
-        if (empty($access_token))
-        {
+        if (empty($access_token)) {
             $this->_show_error("Access token is missing");
         }
 
-        if (empty($post_body) || !is_array($post_body))
-        {
+        if (empty($post_body) || !is_array($post_body)) {
             $this->_show_error("Post body must be an array");
         }
 
@@ -443,7 +397,7 @@ class Google_my_business
 
         $build_query = http_build_query($params);
         $json_econde = json_encode($post_body);
-        return $this->_apiCall($this->root_api . $name . ":fetchVerificationOptions?" . $build_query, 'post', $json_econde);
+        return $this->_apiCall($this->verification_uri . $name . ":fetchVerificationOptions?" . $build_query, 'post', $json_econde);
     }
 
     /*
@@ -452,13 +406,11 @@ class Google_my_business
 
     public function get_locations_media($location_name, $access_token)
     {
-        if (empty($location_name))
-        {
+        if (empty($location_name)) {
             $this->_show_error("Account name is missing");
         }
 
-        if (empty($access_token))
-        {
+        if (empty($access_token)) {
             $this->_show_error("Access token is missing");
         }
 
@@ -466,22 +418,20 @@ class Google_my_business
 
         $build_query = http_build_query($params);
 
-        return $this->_apiCall($this->root_api . $location_name . "?" . $build_query);
+        return $this->_apiCall($this->root_uri . $location_name . "?" . $build_query);
     }
 
     /*
      * Location media insert functions
      */
 
-    public function insert_media($name, $access_token, $post_body = array())
+    public function insert_media($location_name, $access_token, $post_body = array())
     {
-        if (empty($name))
-        {
+        if (empty($location_name)) {
             $this->_show_error("Account name is missing");
         }
 
-        if (empty($access_token))
-        {
+        if (empty($access_token)) {
             $this->_show_error("Access token is missing");
         }
 
@@ -491,7 +441,7 @@ class Google_my_business
 
         $json_econde = json_encode($post_body);
 
-        return $this->_apiCall($this->root_api . $name . "?" . $build_query, 'post', $json_econde);
+        return $this->_apiCall($this->root_uri . $location_name . "?" . $build_query, 'post', $json_econde);
     }
 
     /*
@@ -500,48 +450,42 @@ class Google_my_business
 
     public function update_media($location_name, $access_token, $fieldMask, $post_body = array(), $validateOnly = NULL)
     {
-        if (empty($location_name))
-        {
+        if (empty($location_name)) {
             $this->_show_error("Account name is missing");
         }
 
-        if (empty($access_token))
-        {
+        if (empty($access_token)) {
             $this->_show_error("Access token is missing");
         }
 
-        if (!is_array($post_body) || count($post_body) === 0)
-        {
+        if (!is_array($post_body) || count($post_body) === 0) {
             $this->_show_error("Post body must be an array");
         }
 
         $params = array('access_token' => $access_token, 'update_mask' => $fieldMask);
 
-        if (!empty($validateOnly))
-        {
+        if (!empty($validateOnly)) {
             $params['validateOnly'] = TRUE;
         }
 
         $build_query = http_build_query($params);
 
         $json_econde = json_encode($post_body);
+        return $this->_apiCall($this->root_uri . $location_name . "?" . $build_query, 'patch', $json_econde);
 
-        return $this->_apiCall($this->root_api . $location_name . "?" . $build_query, 'patch', $json_econde);
     }
 
     /*
      * Delete Location media functions
      */
 
-    public function delete_media($name, $access_token)
+    public function delete_media($location_name, $access_token)
     {
-        if (empty($name))
-        {
-            $this->_show_error("Account name is missing");
+        if (empty($location_name)) {
+            $this->_show_error("Location name is missing");
         }
 
-        if (empty($access_token))
-        {
+        if (empty($access_token)) {
             $this->_show_error("Access token is missing");
         }
 
@@ -549,7 +493,7 @@ class Google_my_business
 
         $build_query = http_build_query($params);
 
-        return $this->_apiCall($this->root_api . $name . "?" . $build_query, 'delete');
+        return $this->_apiCall($this->root_uri . $location_name . "?" . $build_query, 'delete');
     }
 
     /*
@@ -558,13 +502,11 @@ class Google_my_business
 
     public function get_reviews($review_name, $access_token)
     {
-        if (empty($review_name))
-        {
+        if (empty($review_name)) {
             $this->_show_error("Account name is missing");
         }
 
-        if (empty($access_token))
-        {
+        if (empty($access_token)) {
             $this->_show_error("Access token is missing");
         }
 
@@ -572,18 +514,16 @@ class Google_my_business
 
         $build_query = http_build_query($params);
 
-        return $this->_apiCall($this->root_api . $review_name . "?" . $build_query);
+        return $this->_apiCall($this->root_uri . $review_name . "?" . $build_query);
     }
 
     public function reply_review($review_name, $access_token, $post_body)
     {
-        if (empty($review_name))
-        {
+        if (empty($review_name)) {
             $this->_show_error("Account name is missing");
         }
 
-        if (empty($access_token))
-        {
+        if (empty($access_token)) {
             $this->_show_error("Access token is missing");
         }
 
@@ -593,58 +533,16 @@ class Google_my_business
 
         $json_econde = json_encode($post_body);
 
-        return $this->_apiCall($this->root_api . $review_name . "?" . $build_query, 'PUT', $json_econde);
-    }
-
-    public function qa_reply($question_name, $access_token, $post_body)
-    {
-        if (empty($question_name))
-        {
-            $this->_show_error("Question name is missing");
-        }
-
-        if (empty($access_token))
-        {
-            $this->_show_error("Access token is missing");
-        }
-
-        $params = array('access_token' => $access_token);
-
-        $build_query = http_build_query($params);
-
-        $json_econde = json_encode($post_body);
-
-        return $this->_apiCall($this->root_api . $question_name . "/answers:upsert?" . $build_query, 'post', $json_econde);
-    }
-
-    public function delete_qa_reply($question_name, $access_token)
-    {
-        if (empty($question_name))
-        {
-            $this->_show_error("Account name is missing");
-        }
-
-        if (empty($access_token))
-        {
-            $this->_show_error("Access token is missing");
-        }
-
-        $params = array('access_token' => $access_token);
-
-        $build_query = http_build_query($params);
-
-        return $this->_apiCall($this->root_api . $question_name . "/answers:delete?" . $build_query, 'DELETE');
+        return $this->_apiCall($this->root_uri . $review_name . "?" . $build_query, 'PUT', $json_econde);
     }
 
     public function delete_review_reply($review_name, $access_token)
     {
-        if (empty($review_name))
-        {
+        if (empty($review_name)) {
             $this->_show_error("Account name is missing");
         }
 
-        if (empty($access_token))
-        {
+        if (empty($access_token)) {
             $this->_show_error("Access token is missing");
         }
 
@@ -652,7 +550,7 @@ class Google_my_business
 
         $build_query = http_build_query($params);
 
-        return $this->_apiCall($this->root_api . $review_name . "?" . $build_query, 'delete');
+        return $this->_apiCall($this->root_uri . $review_name . "?" . $build_query, 'delete');
     }
 
     /*
@@ -661,13 +559,11 @@ class Google_my_business
 
     public function get_local_post($post_name, $access_token)
     {
-        if (empty($post_name))
-        {
+        if (empty($post_name)) {
             $this->_show_error("Account name is missing");
         }
 
-        if (empty($access_token))
-        {
+        if (empty($access_token)) {
             $this->_show_error("Access token is missing");
         }
 
@@ -675,23 +571,20 @@ class Google_my_business
 
         $build_query = http_build_query($params);
 
-        return $this->_apiCall($this->root_api . $post_name . "?" . $build_query);
+        return $this->_apiCall($this->root_uri . $post_name . "?" . $build_query);
     }
 
     public function post_local_post($location_name, $access_token, $post_body = array())
     {
-        if (empty($location_name))
-        {
+        if (empty($location_name)) {
             $this->_show_error("Account name is missing");
         }
 
-        if (empty($access_token))
-        {
+        if (empty($access_token)) {
             $this->_show_error("Access token is missing");
         }
 
-        if (!is_array($post_body) && count($post_body) === 0)
-        {
+        if (!is_array($post_body) && count($post_body) === 0) {
             $this->_show_error("Post body must be an array set");
         }
 
@@ -702,18 +595,16 @@ class Google_my_business
 
         $json_econde = json_encode($post_body);
 
-        return $this->_apiCall($this->root_api . $location_name . "?" . $build_query, 'post', $json_econde);
+        return $this->_apiCall($this->root_uri . $location_name . "?" . $build_query, 'post', $json_econde);
     }
 
     public function delete_localpost($post_name, $access_token)
     {
-        if (empty($post_name))
-        {
+        if (empty($post_name)) {
             $this->_show_error("Account name is missing");
         }
 
-        if (empty($access_token))
-        {
+        if (empty($access_token)) {
             $this->_show_error("Access token is missing");
         }
 
@@ -721,7 +612,7 @@ class Google_my_business
 
         $build_query = http_build_query($params);
 
-        return $this->_apiCall($this->root_api . $post_name . "?" . $build_query, 'delete');
+        return $this->_apiCall($this->root_uri . $post_name . "?" . $build_query, 'delete');
     }
 
     /*
@@ -730,13 +621,11 @@ class Google_my_business
 
     public function get_questions($location_name, $access_token)
     {
-        if (empty($location_name))
-        {
+        if (empty($location_name)) {
             $this->_show_error("Account name is missing");
         }
 
-        if (empty($access_token))
-        {
+        if (empty($access_token)) {
             $this->_show_error("Access token is missing");
         }
 
@@ -744,18 +633,16 @@ class Google_my_business
 
         $build_query = http_build_query($params);
 
-        return $this->_apiCall($this->root_api . $location_name . "?" . $build_query);
+        return $this->_apiCall($this->qa_uri . $location_name . "?" . $build_query);
     }
 
     public function get_answers($location_name, $access_token)
     {
-        if (empty($location_name))
-        {
+        if (empty($location_name)) {
             $this->_show_error("Account name is missing");
         }
 
-        if (empty($access_token))
-        {
+        if (empty($access_token)) {
             $this->_show_error("Access token is missing");
         }
 
@@ -763,27 +650,18 @@ class Google_my_business
 
         $build_query = http_build_query($params);
 
-        return $this->_apiCall($this->root_api . $location_name . "?" . $build_query);
+        return $this->_apiCall($this->qa_uri . $location_name . "?" . $build_query);
     }
-    
-    public function get_insights($route, $access_token, $post_body)
-    {
 
-        if (empty($route))
-        {
-            $this->_show_error("Account name is missing");
+    public function qa_reply($question_name, $access_token, $post_body)
+    {
+        if (empty($question_name)) {
+            $this->_show_error("Question name is missing");
         }
 
-        if (empty($access_token))
-        {
+        if (empty($access_token)) {
             $this->_show_error("Access token is missing");
         }
-
-        if (!is_array($post_body) && count($post_body) === 0)
-        {
-            $this->_show_error("Post body must be an array set");
-        }
-
 
         $params = array('access_token' => $access_token);
 
@@ -791,7 +669,52 @@ class Google_my_business
 
         $json_econde = json_encode($post_body);
 
-        return $this->_apiCall($this->root_api . $route . "?" . $build_query, 'post', $json_econde);
+        return $this->_apiCall($this->qa_uri . $question_name . "/answers:upsert?" . $build_query, 'post', $json_econde);
+    }
+
+    public function delete_qa_reply($question_name, $access_token)
+    {
+        if (empty($question_name)) {
+            $this->_show_error("Account name is missing");
+        }
+
+        if (empty($access_token)) {
+            $this->_show_error("Access token is missing");
+        }
+
+        $params = array('access_token' => $access_token);
+
+        $build_query = http_build_query($params);
+
+        return $this->_apiCall($this->qa_uri . $question_name . "/answers:delete?" . $build_query, 'DELETE');
+    }
+
+    public function get_insights($location_name, $range_data, $metric, $access_token)
+    {
+
+        if (empty($location_name)) {
+            $this->_show_error("Location name is missing");
+        }
+
+        if (empty($access_token)) {
+            $this->_show_error("Access token is missing");
+        }
+
+        $params = array('access_token' => $access_token, 'dailyMetric' => $metric);
+
+        $build_query = http_build_query($params);
+
+        return $this->_apiCall($this->performance_uri . $location_name . ":getDailyMetricsTimeSeries?" . $build_query . '&' . $range_data);
+    }
+
+    public function format_date($date, $type)
+    {
+        $format = ['Y' => 'year', 'm' => 'month', 'd' => 'day'];
+        $str = array();
+        foreach ($format as $key => $f) {
+            $str[] = $type . "." . $f . "=" . date($key, (int) $date);
+        }
+        return join('&', $str);
     }
 
     function redirect($uri)
@@ -805,37 +728,42 @@ class Google_my_business
         curl_setopt($curinit, CURLOPT_SSL_VERIFYPEER, false);
         $method = strtoupper($req_method);
 
-        if ($method == 'POST')
-        {
+        if ($method == 'POST') {
             curl_setopt($curinit, CURLOPT_POST, true);
             curl_setopt($curinit, CURLOPT_POSTFIELDS, $params);
-            curl_setopt($curinit, CURLOPT_HTTPHEADER, array(
-                'Content-Type: application/json',
-                'Content-Length: ' . strlen($params)
+            curl_setopt(
+                $curinit,
+                CURLOPT_HTTPHEADER,
+                array(
+                    'Content-Type: application/json',
+                    'Content-Length: ' . strlen($params)
                 )
             );
             curl_setopt($curinit, CURLOPT_CUSTOMREQUEST, $method);
-        } elseif ($method === 'PUT')
-        {
+        } elseif ($method === 'PUT') {
             curl_setopt($curinit, CURLOPT_POST, true);
             curl_setopt($curinit, CURLOPT_CUSTOMREQUEST, 'PUT');
             curl_setopt($curinit, CURLOPT_POSTFIELDS, $params);
-            curl_setopt($curinit, CURLOPT_HTTPHEADER, array(
-                'Content-Type: application/json',
-                'Content-Length: ' . strlen($params)
+            curl_setopt(
+                $curinit,
+                CURLOPT_HTTPHEADER,
+                array(
+                    'Content-Type: application/json',
+                    'Content-Length: ' . strlen($params)
                 )
             );
-        } elseif ($method == 'DELETE')
-        {
+        } elseif ($method == 'DELETE') {
             curl_setopt($curinit, CURLOPT_CUSTOMREQUEST, $method);
-        } elseif ($method == 'PATCH')
-        {
+        } elseif ($method == 'PATCH') {
             curl_setopt($curinit, CURLOPT_CUSTOMREQUEST, $method);
             curl_setopt($curinit, CURLOPT_POST, true);
             curl_setopt($curinit, CURLOPT_POSTFIELDS, $params);
-            curl_setopt($curinit, CURLOPT_HTTPHEADER, array(
-                'Content-Type: application/json',
-                'Content-Length: ' . strlen($params)
+            curl_setopt(
+                $curinit,
+                CURLOPT_HTTPHEADER,
+                array(
+                    'Content-Type: application/json',
+                    'Content-Length: ' . strlen($params)
                 )
             );
         }
@@ -855,12 +783,12 @@ class Google_my_business
     {
         throw new Exception($data, 500);
     }
-    
-    public function _pre($data = array()) {
+
+    public function _pre($data = array())
+    {
         echo "<pre>";
         print_r($data);
         echo "</pre>";
         exit;
     }
-
 }

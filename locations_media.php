@@ -1,7 +1,9 @@
 <?php
 
 session_start();
+
 error_reporting('-1');
+
 ini_set('display_errors', 1);
 
 require 'vendor/autoload.php';
@@ -13,6 +15,8 @@ $param = array(
     'redirect_uri' => GMB_REDIRECT_URI,
     'scope' => SCOPE
 );
+
+define('LOCATION_NAME', 'accounts/116645947366172015267/locations/12301955069276590370/media');
 
 $myBusiness = new Google_my_business($param);
 
@@ -36,10 +40,9 @@ if(!isset($_SESSION['gmb_account_name']))
 }
 
 /*
- * Example: accounts/116645947366122015200/locations/11837266613486165090/media
+ * Example: accounts/116645947366172015267/locations/12301955069276590370/media
+ * Reference: https://developers.google.com/my-business/reference/rest/v4/accounts.locations.media/get
  */
-$location_details = $myBusiness->get_locations_media("your_location_id/media", $access_token['access_token']);
+$location_details = $myBusiness->get_locations_media(LOCATION_NAME, $access_token['access_token']);
 
-echo "<pre>";
-
-print_r($location_details);
+$myBusiness->_pre($location_details);

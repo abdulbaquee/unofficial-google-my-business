@@ -1,7 +1,9 @@
 <?php
 
 session_start();
+
 error_reporting('-1');
+
 ini_set('display_errors', 1);
 
 require 'vendor/autoload.php';
@@ -13,6 +15,8 @@ $param = array(
     'redirect_uri' => GMB_REDIRECT_URI,
     'scope' => SCOPE
 );
+
+define('LOCATION_NAME', 'accounts/116645947366172015267/locations/12301955069276590370/media/AF1QipNi9L5qpkklKKS4DeDcdrdXfg5evERrrU4wmq4n');
 
 $myBusiness = new Google_my_business($param);
 
@@ -35,8 +39,10 @@ if (!isset($_SESSION['gmb_account_name']))
     $myBusiness->redirect('login.php');
 }
 
-$account_name = $_SESSION['gmb_account_name']; // accounts/116645947366172015267
+/* $media_uri = accounts/116645947366172015267/locations/12301955069276590370/media/AF1QipNi9L5qpkklKKS4DeDcdrdXfg5evERrrU4wmq4n
+ * Reference: https://developers.google.com/my-business/reference/rest/v4/accounts.locations.media/delete
+ */
 
-$notifications = $myBusiness->get_notification_settings($account_name, $access_token['access_token']);
+$delete_media = $myBusiness->delete_media(LOCATION_NAME, $access_token['access_token']);
 
-$myBusiness->_pre($notifications);
+$myBusiness->_pre($delete_media);
