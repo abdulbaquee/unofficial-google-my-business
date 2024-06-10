@@ -1,12 +1,5 @@
 <?php
 
-session_start();
-
-error_reporting('-1');
-
-ini_set('display_errors', 1);
-
-require 'vendor/autoload.php';
 require './config.php';
 
 $param = array(
@@ -18,31 +11,30 @@ $param = array(
 
 define('LOCATION_NAME', 'accounts/116645947366172015267/locations/12301955069276590370/media');
 
-$myBusiness = new Google_my_business($param);
+$myBusiness = new GoogleBusinessProfile($param);
 
-$refresh_token = isset($_SESSION['refresh_token']) ? trim($_SESSION['refresh_token']): NULL;
+$refresh_token = isset($_SESSION['refresh_token']) ? trim($_SESSION['refresh_token']) : NULL;
 
-if (!isset($refresh_token) || empty($refresh_token))
-{
-    $myBusiness->redirect('login.php');
+if (!isset($refresh_token) || empty($refresh_token)) {
+    header('Location: login.php');
 }
 
 $access_token = $myBusiness->get_exchange_token($refresh_token);
 
-if(!isset($access_token['access_token']))
-{
-    $myBusiness->redirect('login.php');
+if (!isset($access_token['access_token'])) {
+    header('Location: login.php');
 }
 
-if(!isset($_SESSION['gmb_account_name']))
-{
-    $myBusiness->redirect('login.php');
+if (!isset($_SESSION['gmb_account_name'])) {
+    header('Location: login.php');
 }
 
 /*
  * Example: accounts/116645947366172015267/locations/12301955069276590370/media
  * Reference: https://developers.google.com/my-business/reference/rest/v4/accounts.locations.media/get
  */
-$location_details = $myBusiness->get_locations_media(LOCATION_NAME, $access_token['access_token']);
+$location_details = $myBusiness->get_location_media(LOCATION_NAME, $access_token['access_token']);
 
-$myBusiness->_pre($location_details);
+echo "<pre>";
+print_r($location_details);
+echo "</pre>";

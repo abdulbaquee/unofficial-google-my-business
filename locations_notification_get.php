@@ -1,10 +1,5 @@
 <?php
 
-session_start();
-error_reporting('-1');
-ini_set('display_errors', 1);
-
-require 'vendor/autoload.php';
 require './config.php';
 
 $param = array(
@@ -14,29 +9,28 @@ $param = array(
     'scope' => SCOPE
 );
 
-$myBusiness = new Google_my_business($param);
+$myBusiness = new GoogleBusinessProfile($param);
 
 $refresh_token = isset($_SESSION['refresh_token']) ? trim($_SESSION['refresh_token']) : NULL;
 
-if (!isset($refresh_token) || empty($refresh_token))
-{
-    $myBusiness->redirect('login.php');
+if (!isset($refresh_token) || empty($refresh_token)) {
+    header('Location: login.php');
 }
 
 $access_token = $myBusiness->get_exchange_token($refresh_token);
 
-if (!isset($access_token['access_token']))
-{
-    $myBusiness->redirect('login.php');
+if (!isset($access_token['access_token'])) {
+    header('Location: login.php');
 }
 
-if (!isset($_SESSION['gmb_account_name']))
-{
-    $myBusiness->redirect('login.php');
+if (!isset($_SESSION['gmb_account_name'])) {
+    header('Location: login.php');
 }
 
 $account_name = $_SESSION['gmb_account_name']; // accounts/116645947366172015267
 
 $notifications = $myBusiness->get_notification_settings($account_name, $access_token['access_token']);
 
-$myBusiness->_pre($notifications);
+echo "<pre>";
+print_r($notifications);
+echo "</pre>";

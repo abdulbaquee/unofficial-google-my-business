@@ -1,8 +1,5 @@
 <?php
 
-session_start();
-
-require 'vendor/autoload.php';
 require './config.php';
 
 $param = array(
@@ -12,22 +9,21 @@ $param = array(
     'scope' => SCOPE
 );
 
-$myBusiness = new Google_my_business($param);
+$myBusiness = new GoogleBusinessProfile($param);
 
 $code = filter_input(INPUT_GET, 'code');
 
 if (!isset($code) || empty($code)) {
-    $myBusiness->redirect('login.php');
+    header('Location: login.php');
 }
 
 $access_token = $myBusiness->get_access_token($code);
 
-if (isset($access_token['error'])) {
-    echo "<p style='color: red; font-weight: bold;'> Errors: " . $access_token['error'] . " => " . $access_token['error_description'] . "</p>";
-
+if (isset($access_token['error']) && isset($access_token['error_description'])) {
+    echo "<p>" . $access_token['error_description'] . "</p>";
     echo "<p><a href='login.php'>Back to Login page</a></p>";
 }
 
 $_SESSION['refresh_token'] = $access_token['refresh_token'];
 
-$myBusiness->redirect('accounts.php');
+header('Location: accounts.php');

@@ -1,12 +1,5 @@
 <?php
 
-session_start();
-
-error_reporting('-1');
-
-ini_set('display_errors', 1);
-
-require 'vendor/autoload.php';
 require './config.php';
 
 $param = array(
@@ -16,33 +9,32 @@ $param = array(
     'scope' => SCOPE
 );
 
-define('LOCATION_NAME', 'accounts/116645947366172015267/locations/12301955069276590370/media/AF1QipNi9L5qpkklKKS4DeDcdrdXfg5evERrrU4wmq4n');
+define('LOCATION_NAME', 'accounts/116645947366172015267/locations/12301955069276590370/media/AF1QipMWuGnW2H3sFiLGLhFygDgyODrWYRVhO2uxeAm6');
 
-$myBusiness = new Google_my_business($param);
+$myBusiness = new GoogleBusinessProfile($param);
 
 $refresh_token = isset($_SESSION['refresh_token']) ? trim($_SESSION['refresh_token']) : NULL;
 
-if (!isset($refresh_token) || empty($refresh_token))
-{
-    $myBusiness->redirect('login.php');
+if (!isset($refresh_token) || empty($refresh_token)) {
+    header('Location: login.php');
 }
 
 $access_token = $myBusiness->get_exchange_token($refresh_token);
 
-if (!isset($access_token['access_token']))
-{
-    $myBusiness->redirect('login.php');
+if (!isset($access_token['access_token'])) {
+    header('Location: login.php');
 }
 
-if (!isset($_SESSION['gmb_account_name']))
-{
-    $myBusiness->redirect('login.php');
+if (!isset($_SESSION['gmb_account_name'])) {
+    header('Location: login.php');
 }
 
-/* $media_uri = accounts/116645947366172015267/locations/12301955069276590370/media/AF1QipNi9L5qpkklKKS4DeDcdrdXfg5evERrrU4wmq4n
+/* $media_uri = accounts/116645947366172015267/locations/12301955069276590370/media/AF1QipMWuGnW2H3sFiLGLhFygDgyODrWYRVhO2uxeAm6
  * Reference: https://developers.google.com/my-business/reference/rest/v4/accounts.locations.media/delete
  */
 
 $delete_media = $myBusiness->delete_media(LOCATION_NAME, $access_token['access_token']);
 
-$myBusiness->_pre($delete_media);
+echo "<pre>";
+print_r($delete_media);
+echo "</pre>";

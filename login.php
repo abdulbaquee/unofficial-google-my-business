@@ -1,6 +1,5 @@
 <?php
 
-require 'vendor/autoload.php';
 require './config.php';
 
 $request_body = array(
@@ -10,6 +9,6 @@ $request_body = array(
     'scope' => SCOPE
 );
 
-$myBusiness = new Google_my_business($request_body);
+$myBusiness = new GoogleBusinessProfile($request_body);
 
 echo "<a href='" . $myBusiness->gmb_login() . "'>Login with Google</a>";

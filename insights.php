@@ -1,14 +1,5 @@
 <?php
 
-ini_set('display_errors', 1);
-
-ini_set('display_startup_errors', 1);
-
-error_reporting(-1);
-
-session_start();
-
-require 'vendor/autoload.php';
 require './config.php';
 
 $param = array(
@@ -17,25 +8,22 @@ $param = array(
     'redirect_uri' => GMB_REDIRECT_URI,
     'scope' => SCOPE
 );
-$myBusiness = new Google_my_business($param);
+$myBusiness = new GoogleBusinessProfile($param);
 
 $refresh_token = isset($_SESSION['refresh_token']) ? trim($_SESSION['refresh_token']) : NULL;
 
-if (!isset($refresh_token) || empty($refresh_token))
-{
-    $myBusiness->redirect('login.php');
+if (!isset($refresh_token) || empty($refresh_token)) {
+    header('Location: login.php');
 }
 
 $access_token = $myBusiness->get_exchange_token($refresh_token);
 
-if (!isset($access_token['access_token']))
-{
-    $myBusiness->redirect('login.php');
+if (!isset($access_token['access_token'])) {
+    header('Location: login.php');
 }
 
-if (!isset($_SESSION['gmb_account_name']))
-{
-    $myBusiness->redirect('login.php');
+if (!isset($_SESSION['gmb_account_name'])) {
+    header('Location: login.php');
 }
 
 define('LOCATION_NAME', 'locations/12301955069276590370');
@@ -55,18 +43,17 @@ $metrics = array(
     'WEBSITE_CLICKS'
 );
 
-$startTime = strtotime("-10 days");
+$startTime = strtotime("-30 days");
 
 $endTime = strtotime("-4 days");
 
 $range_data = $myBusiness->format_date($startTime, 'dailyRange.start_date') . '&' . $myBusiness->format_date($endTime, 'dailyRange.end_date');
 
-foreach ($metrics as $key => $metric)
-{
+foreach ($metrics as $key => $metric) {
 
-    $results = $myBusiness->get_insights(LOCATION_NAME, $range_data, $metric, $access_token);
+    $results = $myBusiness->get_location_insights(LOCATION_NAME, $range_data, $metric, $access_token);
 
     echo "<pre>";
-    print_r($results);
+    var_dump($results);
     echo "</pre>";
 }

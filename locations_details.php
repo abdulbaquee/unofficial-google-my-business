@@ -1,8 +1,5 @@
 <?php
 
-session_start();
-
-require 'vendor/autoload.php';
 require './config.php';
 
 $param = array(
@@ -14,25 +11,22 @@ $param = array(
 
 define('LOCATION_NAME', 'locations/12301955069276590370');
 
-$myBusiness = new Google_my_business($param);
+$myBusiness = new GoogleBusinessProfile($param);
 
 $refresh_token = isset($_SESSION['refresh_token']) ? trim($_SESSION['refresh_token']) : NULL;
 
-if (!isset($refresh_token) || empty($refresh_token))
-{
-    $myBusiness->redirect('login.php');
+if (!isset($refresh_token) || empty($refresh_token)) {
+    header('Location: login.php');
 }
 
 $access_token = $myBusiness->get_exchange_token($refresh_token);
 
-if (!isset($access_token['access_token']))
-{
-    $myBusiness->redirect('login.php');
+if (!isset($access_token['access_token'])) {
+    header('Location: login.php');
 }
 
-if (!isset($_SESSION['gmb_account_name']))
-{
-    $myBusiness->redirect('login.php');
+if (!isset($_SESSION['gmb_account_name'])) {
+    header('Location: login.php');
 }
 
 /*
@@ -42,6 +36,8 @@ $mask = array('title', 'name', 'phoneNumbers', 'storefrontAddress', 'websiteUri'
 
 $readMask['readMask'] = implode(',', $mask);
 
-$location_details = $myBusiness->get_locations_details(LOCATION_NAME, $access_token['access_token'], $readMask);
+$location_details = $myBusiness->get_location_details(LOCATION_NAME, $access_token['access_token'], $readMask);
 
-$myBusiness->_pre($location_details);
+echo "<pre>";
+print_r($location_details);
+echo "</pre>";

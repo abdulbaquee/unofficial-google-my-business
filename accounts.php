@@ -12,18 +12,18 @@ $param = array(
     'scope' => SCOPE
 );
 
-$myBusiness = new Google_my_business($param);
+$myBusiness = new GoogleBusinessProfile($param);
 
 $refresh_token = isset($_SESSION['refresh_token']) ? trim($_SESSION['refresh_token']) : NULL;
 
 if (!isset($refresh_token) || empty($refresh_token)) {
-    $myBusiness->redirect('login.php');
+    header('Location: login.php');
 }
 
 $access_token = $myBusiness->get_exchange_token($refresh_token);
 
 if (!isset($access_token['access_token'])) {
-    $myBusiness->redirect('login.php');
+    header('Location: login.php');
 }
 
 $accounts = $myBusiness->get_accounts($access_token['access_token']);
@@ -34,5 +34,7 @@ if (isset($accounts['accounts']) && count($accounts['accounts']) > 0) {
 
     $account_details = $myBusiness->get_account_details($_SESSION['gmb_account_name'], $access_token['access_token']);
 
-    $myBusiness->_pre($account_details);
+    echo "<pre>";
+    print_r($account_details);
+    echo "</pre>";
 }
