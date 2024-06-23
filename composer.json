@@ -21,7 +21,7 @@
         "ext-openssl": "*"
     },
     "autoload": {
-        "files": ["lib/Google_my_business.php"]
+        "files": ["lib/GoogleBusinessProfile.php"]
     },
     "prefer-stable": true
 }
