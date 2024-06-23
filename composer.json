@@ -15,7 +15,6 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "abdulbaquee/unofficial-google-my-business": "3.1@dev",
         "php": ">=5.4",
         "ext-curl": "*",
         "ext-json": "*",
